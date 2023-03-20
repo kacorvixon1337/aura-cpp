@@ -1,0 +1,5 @@
+<<<<<<< HEAD
+{"stat.flyOneCm":297,"stat.deaths":6,"stat.walkOneCm":85,"stat.jump":4,"stat.playOneMinute":905,"stat.fallOneCm":211,"stat.leaveGame":2,"stat.damageTaken":1220,"stat.timeSinceDeath":72,"stat.sprintOneCm":16,"achievement.exploreAllBiomes":{"value":0,"progress":["Forest"]}}
+=======
+{"stat.walkOneCm":39444,"stat.leaveGame":12,"stat.useItem.minecraft.sponge":2,"stat.useItem.minecraft.gravel":199,"stat.useItem.minecraft.diamond_sword":3,"stat.useItem.minecraft.mutton":1,"stat.jump":121,"stat.swimOneCm":486,"stat.fallOneCm":2312,"stat.crouchOneCm":1118,"stat.useItem.minecraft.dirt":15,"stat.useItem.minecraft.leaves":19,"stat.sprintOneCm":17695,"achievement.exploreAllBiomes":{"value":0,"progress":["Forest","River","Plains"]},"stat.useItem.minecraft.sapling":17,"achievement.openInventory":20,"stat.damageTaken":823,"stat.flyOneCm":289040,"stat.deaths":3,"stat.playOneMinute":97534,"stat.entityKilledBy.Zombie":1,"stat.damageDealt":15,"stat.timeSinceDeath":78405,"stat.useItem.minecraft.spawn_egg":2,"stat.mineBlock.minecraft.tallgrass":3}
+>>>>>>> 0dfe72f3c177d480eb3bc177a741d8c581052a0d

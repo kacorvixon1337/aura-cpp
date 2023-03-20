@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Pliki źródłowe">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Pliki nagłówkowe">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Pliki zasobów">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Loader">
+      <UniqueIdentifier>{debd677f-3d51-4dd5-b056-2dfdb0eaa3f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClassLoader">
+      <UniqueIdentifier>{6729979f-9978-45ed-9741-944a79b4ca17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Decryptor">
+      <UniqueIdentifier>{7126b352-0281-4951-9584-13b1484b6ba6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="includes">
+      <UniqueIdentifier>{4a40874d-e196-484b-b3f4-55ddf8270c6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cheats">
+      <UniqueIdentifier>{838ea86e-499e-452c-b3e0-3ad9dea0468f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cheats\gui">
+      <UniqueIdentifier>{efa6cb55-0bfe-4291-b557-42eae98fb96f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cheats\gui\font">
+      <UniqueIdentifier>{762670b3-d2f4-408b-8808-cd2d5e58b525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cheats\icons">
+      <UniqueIdentifier>{02382a2a-e3a3-41a1-9099-bbceb8e663ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cheats\Xd">
+      <UniqueIdentifier>{13a2078f-5eec-452c-b384-9f46e856796f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Virtualizer">
+      <UniqueIdentifier>{2bf675c4-a82a-4ae3-96b7-471391c6fbdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Virtualizer\C">
+      <UniqueIdentifier>{4c343fb3-2caf-47f6-9bdb-4b5845a11ab9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="JVM-JarLoader.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="LoaderUtils.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="ClassLoader.cpp">
+      <Filter>ClassLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Decryptor.cpp">
+      <Filter>Decryptor</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="cheats\gui\imgui.cpp">
+      <Filter>cheats\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="cheats\gui\imgui_demo.cpp">
+      <Filter>cheats\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="cheats\gui\imgui_draw.cpp">
+      <Filter>cheats\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="cheats\gui\imgui_impl_win32.cpp">
+      <Filter>cheats\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="cheats\gui\imgui_tables.cpp">
+      <Filter>cheats\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="cheats\gui\imgui_widgets.cpp">
+      <Filter>cheats\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="cheats\gui\imgui_impl_opengl2.cpp">
+      <Filter>cheats\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Radius.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="Loader.cpp">
+      <Filter>includes</Filter>
+    </ClCompile>
+    <ClCompile Include="antidebug.cpp">
+      <Filter>cheats\Xd</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LoaderUtils.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader.h">
+      <Filter>Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassLoader.h">
+      <Filter>ClassLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources.h">
+      <Filter>Pliki źródłowe</Filter>
+    </ClInclude>
+    <ClInclude Include="Decryptor.h">
+      <Filter>Decryptor</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Pliki zasobów</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\MinHook.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\glew.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\glxew.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\wglew.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+    <ClInclude Include="nigger.h">
+      <Filter>cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imconfig.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imgui.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imgui_impl_win32.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imgui_internal.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imstb_rectpack.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imstb_textedit.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imstb_truetype.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="minecraftFont.h">
+      <Filter>cheats\gui\font</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\gui\imgui_impl_opengl2.h">
+      <Filter>cheats\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="BpPlayer.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\icons\font.h">
+      <Filter>cheats\icons</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\icons\iconcpp.h">
+      <Filter>cheats\icons</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\icons\icons.h">
+      <Filter>cheats\icons</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\icons\IconsFontAwesome5.h">
+      <Filter>cheats\icons</Filter>
+    </ClInclude>
+    <ClInclude Include="Radius.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="includes.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+    <ClInclude Include="position.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+    <ClInclude Include="xorstr.hpp">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="lazy_importer.hpp">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_BorlandC_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_CustomVMs.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_CustomVMs_BorlandC_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_CustomVMs_GNU_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_CustomVMs_ICL_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_CustomVMs_LCC_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_CustomVMs_VC_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_GNU_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_ICL_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_LCC_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Virtualizer\C\VirtualizerSDK_VC_inline.h">
+      <Filter>Virtualizer\C</Filter>
+    </ClInclude>
+    <ClInclude Include="FnvHash.hpp">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="defs.hpp">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="antidebug.h">
+      <Filter>cheats\Xd</Filter>
+    </ClInclude>
+    <ClInclude Include="scan.h">
+      <Filter>includes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="auth\libcurl.lib">
+      <Filter>cheats\Xd</Filter>
+    </Library>
+    <Library Include="auth\library_x64.lib">
+      <Filter>cheats\Xd</Filter>
+    </Library>
+  </ItemGroup>
+</Project>
