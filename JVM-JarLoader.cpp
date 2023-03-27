@@ -497,19 +497,18 @@ BOOL __stdcall hglCallList(GLuint list) {
 
     if (cheats::xray) {
 
-        glEnable(GL_DEPTH_TEST);
-        oglCallList(list);
-        glDisable(GL_DEPTH_TEST);
+
     }
+
     else {
-        glEnable(GL_DEPTH_TEST);
+
     }
 
     if (cheats::cavefinder) {
         glDisable(GL_DEPTH_TEST);
     }
     else {
- 
+
         glEnable(GL_DEPTH_TEST);
 
     }
