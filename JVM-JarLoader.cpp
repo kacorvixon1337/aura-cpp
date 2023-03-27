@@ -515,15 +515,10 @@ BOOL __stdcall hglCallList(GLuint list) {
 
 
     if (cheats::chams) {
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_TEXTURE_2D);
-        oglCallList(list);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_TEXTURE_2D);
+
     }
     else {
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_TEXTURE_2D);
+
     }
     if (cheats::clearesp) {
 
