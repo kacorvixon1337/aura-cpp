@@ -233,6 +233,9 @@
     <ClInclude Include="scan.h">
       <Filter>includes</Filter>
     </ClInclude>
+    <ClInclude Include="foncik.h">
+      <Filter>Pliki źródłowe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="auth\libcurl.lib">

@@ -1,4 +1,4 @@
-int tab = 1;
+int tab = 0;
 float color1tak = 0.5;
 float color2tak = 0.5;
 float color3tak = 0.5;
@@ -25,17 +25,20 @@ namespace cheats {
     bool rainbowesp = false;
     bool boxes;
     bool fillboxy;
-    float reach = 3.0;
-    float vclipsize = 3.0;
+    int reach = 3.0;
+    int vclipsize = 3.0;
+    int scalename = 3.0;
     float newX = 0.0;
     float newY = 0.0;
     float newZ = 0.0;
     float motionXf = 0;
     float motionYf = 0;
     float motionZf = 0;
+    string blinkhook = "niema";
     //float speedmine = 2;
     float stepsize = 0.1;
     bool listapedalow = false;
+    bool nametagsy = false;
     bool cavefinder = false;
     bool clearesp = false;
     bool speedmine = false;

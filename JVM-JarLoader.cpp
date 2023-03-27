@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#pragma comment(lib, "ws2_32")
 #define _CRT_SECURE_NO_WARNINGS
-
 #define WIN32_LEAN_AND_MEAN
-void listagraczyihuj();
+
 #include "includes.h"
 #include "auth.hpp"
 #include <string>
@@ -29,6 +29,7 @@ void listagraczyihuj();
 #include "xorstr.hpp"
 #include "lazy_importer.hpp"
 #include "scan.h"
+#include "foncik.h"
 std::string tm_to_readable_time(tm ctx);
 static std::time_t string_to_timet(std::string timestamp);
 static std::tm timet_to_tm(time_t timestamp);
@@ -42,6 +43,72 @@ std::string secret = xorstr_("9e7288e888d427fd15596a11674be5335f50b14051aaf54d6b
 std::string version = xorstr_("1.0"); // leave alone unless you've changed version on website
 std::string url = xorstr_("https://keyauth.win/api/1.2/"); // change if you're self-hosting
 api KeyAuthApp(name, ownerid, secret, version, url);
+
+void listagraczyihuj() {
+    jclass bpPlayer = env_->FindClass("pl/afyaan/module/impl/BpPlayer");
+    jfieldID bpPlayers = env_->GetStaticFieldID(bpPlayer, "bpPlayers", "Ljava/util/List;");
+    jobject players = env_->GetStaticObjectField(bpPlayer, bpPlayers);
+
+    jclass listClass = env_->FindClass("java/util/ArrayList");
+    jmethodID listSize = env_->GetMethodID(listClass, "size", "()I");
+    jmethodID listGet = env_->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
+    playersSize = env_->CallIntMethod(players, listSize);
+
+    items.clear();
+    for (int i = 0; i < playersSize; i++) {
+        jobject player = env_->CallObjectMethod(players, listGet, i);
+
+        jfieldID userNameField = env_->GetFieldID(bpPlayer, "userName", "Ljava/lang/String;");
+        userNameGet = env_->GetMethodID(bpPlayer, "getUserName", "()Ljava/lang/String;");
+        jmethodID xGet = env_->GetMethodID(bpPlayer, "getX", "()D");
+   
+        jmethodID yGet = env_->GetMethodID(bpPlayer, "getY", "()D");
+        jmethodID zGet = env_->GetMethodID(bpPlayer, "getZ", "()D");
+        userNamegraczza = (jstring)env_->CallObjectMethod(player, userNameGet);
+        int x = env_->CallDoubleMethod(player, xGet);
+        int y = env_->CallDoubleMethod(player, yGet);
+        int z = env_->CallDoubleMethod(player, zGet);
+        string xfixed = to_string(x);
+        string yfixed = to_string(y);
+        string zfixed = to_string(z);
+        string nickxddd = env_->GetStringUTFChars(userNamegraczza, 0);
+        int dlugoscnicku = nickxddd.length();
+        if (dlugoscnicku >= 3) {
+            ImGui::Text(env_->GetStringUTFChars(userNamegraczza, 0));
+            ImGui::SameLine();
+            ImGui::Text("|");
+            ImGui::SameLine();
+
+            ImGui::Text("X:");
+
+            ImGui::SameLine();
+
+            ImGui::Text(xfixed.c_str());
+
+            ImGui::SameLine();
+
+            ImGui::Text("Y:");
+
+            ImGui::SameLine();
+
+            ImGui::Text(yfixed.c_str());
+
+            ImGui::SameLine();
+
+            ImGui::Text("Z:");
+
+            ImGui::SameLine();
+
+            ImGui::Text(zfixed.c_str());
+        }
+        BpPlayer newPlayer;
+        newPlayer.userName = userNamegraczza;
+        newPlayer.x = x;
+        newPlayer.y = y;
+        newPlayer.z = z;
+        items.push_back(newPlayer);
+    }
+}
 bool player_getter(void* data, int index, const char** output)
 {
     BpPlayer player = items[index];
@@ -74,16 +141,13 @@ DWORD rainbow(string ret) {
     }
 }
 static float color10[3] = { 1.0 };
-void doSearch() {
-    HWND hwnd = FindWindowA(("AAAA"), NULL);
-    DWORD procId;
-    GetWindowThreadProcessId(hwnd, &procId);
-    HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procId);
-    void* addr1 = ScanEx("\xC7\x42\x14\x05", "xxxx", (char*)0x1000000, 0x9000000, handle);
-    cout << addr1;
-    WriteProcessMemory(handle, addr1, "\x90\x90\x90\x90\x90\x90\x90", 7, NULL);
-    cheats::speedmine = false;
+int (WINAPI* pSend)(SOCKET s, const char* buf, int len, int flags) = send;
+int WINAPI MySend(SOCKET s, const char* buf, int len, int flags);
+int __stdcall  MySend(SOCKET s, const char* buf, int len, int flags) {
+    return  cheats::blink ? 0 : pSend(s, buf, len, flags);
 }
+
+
 void render(_In_ HDC hDc)
 {
     window = WindowFromDC(hDc);
@@ -107,43 +171,69 @@ void render(_In_ HDC hDc)
         icons_config.OversampleV = 2.5;
         io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
 
-        io.Fonts->AddFontFromMemoryTTF(const_cast<std::uint8_t*>(Custom), sizeof(Custom), 17.f, &CustomFont);
-        io.Fonts->AddFontFromMemoryCompressedTTF(font_awesome_data, font_awesome_size, 17.0f, &icons_config, icons_ranges);
-
+        io.Fonts->AddFontFromMemoryCompressedTTF(minecraftfont_data, minecraftfont, 16);
+        ImGui::GetStyle().WindowRounding = 5.0f;// <- Set this on init or use ImGui::PushStyleVar()
+        ImGui::GetStyle().WindowBorderSize = 0.f;// <- Set this on init or use ImGui::PushStyleVar()
+        ImGui::GetStyle().ChildRounding = 4.0f;// <- Set this on init or use ImGui::PushStyleVar()
+        ImGui::GetStyle().WindowPadding = ImVec2(0, 1);
 
         io.Fonts->AddFontDefault();
         ImGui_ImplWin32_Init(window);
         ImGui_ImplOpenGL2_Init();
 
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowMinSize = ImVec2(555, 348);
-        style.Colors[ImGuiCol_TitleBg] = ImColor(23, 23, 23, 255);
-        style.Colors[ImGuiCol_TitleBgActive] = ImColor(35, 35, 35, 255);
-        style.Colors[ImGuiCol_TitleBgCollapsed] = ImColor(35, 35, 35, 255);
-        style.Colors[ImGuiCol_FrameBg] = ImColor(54, 54, 54, 255);
-        style.Colors[ImGuiCol_FrameBgActive] = ImColor(72, 76, 77, 255);
-        style.Colors[ImGuiCol_FrameBgHovered] = ImColor(72, 76, 77, 255);
-        style.Colors[ImGuiCol_CheckMark] = ImColor(255, 255, 255, 255);
-        style.Colors[ImGuiCol_SliderGrab] = ImColor(181, 189, 188, 255);
-        style.Colors[ImGuiCol_SliderGrabActive] = ImColor(181, 189, 188, 255);
-        style.Colors[ImGuiCol_ButtonActive] = ImColor(23, 23, 23);
-        style.Colors[ImGuiCol_ButtonHovered] = ImColor(23, 23, 23);
-        style.Colors[ImGuiCol_Button] = ImColor(23, 23, 23);
-        style.Colors[ImGuiCol_Text] = ImColor(255, 255, 255, 255);
-        style.Colors[ImGuiCol_WindowBg] = ImColor(23, 23, 23, 255);
-        style.Colors[ImGuiCol_ChildBg] = ImColor(23, 23, 23, 255);
-        style.Colors[ImGuiCol_TabActive] = ImColor(23, 23, 23, 255);
-        style.Colors[ImGuiCol_TabHovered] = ImColor(23, 23, 23, 255);
-        style.Colors[ImGuiCol_TabUnfocused] = ImColor(28, 28, 39, 255);
-        style.Colors[ImGuiCol_TabUnfocusedActive] = ImColor(23, 23, 23, 255);
-        style.Colors[ImGuiCol_Tab] = ImColor(23, 23, 23, 255);
-        style.WindowRounding = 6;
-        style.FrameRounding = 6;
-        style.GrabRounding = 6;
-        style.TabRounding = 6;
-        style.WindowBorderSize = false;
-        style.ChildRounding = 6;
+        ImGuiStyle* style = &ImGui::GetStyle();
+        ImVec4* colors = style->Colors;
 
+
+
+        colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+        colors[ImGuiCol_WindowBg] = ImVec4(0.01, 0.01, 0.01, 0.5f);
+        colors[ImGuiCol_ChildBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.94f);
+        colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+        colors[ImGuiCol_Border] = ImVec4(0.980, 0.372, 0.626, 1.f);
+        colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_FrameBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.54f);
+        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.10f, 0.10f, 0.10f, 0.40f);
+        colors[ImGuiCol_FrameBgActive] = ImVec4(0.10f, 0.10f, 0.10f, 0.67f);
+        colors[ImGuiCol_TitleBg] = ImVec4(0.280, 0.274, 0.274, 1.00f);
+        colors[ImGuiCol_TitleBgActive] = ImVec4(0.280, 0.274, 0.274, 1.00f);
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.280, 0.274, 0.274, 0.51f);
+        colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+        colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+        colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+        colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+        colors[ImGuiCol_SliderGrab] = ImVec4(0.130, 0.127, 0.127, 1.f);
+        colors[ImGuiCol_SliderGrabActive] = ImVec4(0.370, 0.370, 0.370, 0.8f);
+        colors[ImGuiCol_Button] = ImVec4(0.210, 0.212, 0.212, 1.f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(0.150, 0.150, 0.150, 1.00f);
+        colors[ImGuiCol_ButtonActive] = ImVec4(0.180, 0.180, 0.180, 1.00f);
+        colors[ImGuiCol_Header] = ImVec4(0.280, 0.274, 0.274, 0.31f);
+        colors[ImGuiCol_HeaderHovered] = ImVec4(0.280, 0.274, 0.274, 0.80f);
+        colors[ImGuiCol_HeaderActive] = ImVec4(0.280, 0.274, 0.274, 1.00f);
+        colors[ImGuiCol_Separator] = colors[ImGuiCol_Border];
+        colors[ImGuiCol_SeparatorHovered] = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+        colors[ImGuiCol_SeparatorActive] = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+        colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
+        colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+        colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+        colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+        colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+        colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+        colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+        colors[ImGuiCol_TableHeaderBg] = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+        colors[ImGuiCol_TableBorderStrong] = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);   // Prefer using Alpha=1.0 here
+        colors[ImGuiCol_TableBorderLight] = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);   // Prefer using Alpha=1.0 here
+        colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+        colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+        colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+        colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+        colors[ImGuiCol_NavHighlight] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+        colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+        colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+        colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
         done = true;
     }
 
@@ -156,126 +246,127 @@ void render(_In_ HDC hDc)
 
     ImGui::GetIO().WantCaptureMouse = cheats::showmenu;
     ImGui::GetIO().MouseDrawCursor = cheats::showmenu;
+ 
+const char* tabs[] = {
+"player",
+"combat",
+"render",
+"other",
+"unsafe",
 
-    if (cheats::showmenu)
+};
+if (cheats::showmenu) {
+    ImGui::SetNextWindowSize(ImVec2(700, 350));
+    ImGui::Begin("##blazingtool", &cheats::showmenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+    ImGui::SetColorEditOptions(ImGuiColorEditFlags_RGB | ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoInputs);
+    auto wPos = ImGui::GetWindowPos();
+    auto wSize = ImGui::GetWindowSize();
+    ImGui::GetForegroundDrawList()->AddRectFilled({ wPos.x + 1, wPos.y }, { wPos.x + wSize.x - 1, wPos.y + 20 }, IM_COL32(46, 46, 46, 255), 5);
+    ImGui::GetForegroundDrawList()->AddRectFilled({ wPos.x + 1, wPos.y + 15 }, { wPos.x + wSize.x - 1, wPos.y + 35 }, IM_COL32(46, 46, 46, 255), 0);
+    ImGui::GetForegroundDrawList()->AddText(ImVec2(wPos.x + wSize.x / 2 - ImGui::CalcTextSize("BlazingTool").x * 0.5, wPos.y + 10), IM_COL32(255, 255, 255, 255), "BlazingTool");
+    ImGui::GetForegroundDrawList()->AddRect(wPos, { wPos.x + wSize.x, wPos.y + wSize.y }, IM_COL32(255, 110, 177, 255), 5);
+    ImGui::GetForegroundDrawList()->AddRect({ wPos.x - (float)0.5 , wPos.y - (float)0.5 }, { wPos.x + wSize.x + (float)0.5, wPos.y + wSize.y + (float)0.5 }, IM_COL32(255, 110, 177, 255), 5);
+    ImGui::SetCursorPosY(100);
+    ImGui::SetCursorPosX(20);
+    ImGui::BeginChild("##TABS", ImVec2(170, 200), false, ImGuiWindowFlags_NoBackground);
+    for (int i = 0; i < ARRAYSIZE(tabs); i++)
     {
-        ImGui::SetColorEditOptions(ImGuiColorEditFlags_NoInputs);
-        ImGui::Begin(xorstr_("##xyz"), 0, ImGuiWindowFlags_NoTitleBar | ImGuiColorEditFlags_NoInputs | ImGuiWindowFlags_NoResize);
-        ImGui::BeginChild("##Bar", ImVec2(110, 333), false);
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::SameLine(5);
-        ImGui::Text(ICON_FA_FIRE" blazingtool");
-        ImGui::Spacing();
-        ImGui::PushStyleColor(ImGuiCol_Text, active);
-        ImGui::Text(xorstr_("          (vip)"));
-        ImGui::Text(xorstr_("__________"));
+        ImGui::PushStyleColor(ImGuiCol_Text, tab == i ? active : inactive);
+
+        if (ImGui::Button(tabs[i], ImVec2(160, 25)))
+            tab = i;
         ImGui::PopStyleColor();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::PushStyleColor(ImGuiCol_Separator, inactive);
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::PushStyleColor(ImGuiCol_Separator, tab == 1 ? active : inactive);
-        ImGui::SameLine(5);
-        const char* tabs[] = {
-            ICON_FA_MALE" Combat",
-            ICON_FA_BOLT" Movement",
-            ICON_FA_EYE " Visuals",
-            ICON_FA_MAP " Players",
-        };
-        ImGui::BeginGroup();
-        for (int i = 0; i < ARRAYSIZE(tabs); i++)
-        {
-            if (ImGui::Button(tabs[i], ImVec2(100, 34)))
-                tab = i;
-            ImGui::PushStyleColor(ImGuiCol_Separator, tab == i ? active : inactive);
+    }
+
+
+    ImGui::EndChild();
+    ImGui::SetCursorPosX(260);
+    ImGui::SetCursorPosY(70);
+    if (tab == 0) {
+        ImGui::BeginChild("##player", ImVec2(400, 200), false, ImGuiWindowFlags_NoBackground);
+        ImGui::SetCursorPosY(1);
+        ImGui::SetCursorPosX(1);
+        ImGui::newcheckbox("Fly", &cheats::fly); ImGui::SameLine(0, 5); ImGui::Bind("##fly bind", &binds::flybind, ImVec2(45, 25));
+        ImGui::newcheckbox("blink", &cheats::blink); ImGui::SameLine(0, 5); ImGui::Bind("##blink bind", &binds::blinkbind, ImVec2(45, 25));
+        ImGui::newcheckbox("Vclip (down)", &cheats::vclip); ImGui::SameLine(0, 5); ImGui::Bind("##vclip bind", &binds::vclipbind, ImVec2(45, 25));
+        ImGui::SliderInt("vclip y", &cheats::vclipsize, 0.0, 20.0, "%f");
+
+
+        ImGui::EndChild();
+    }
+
+    if (tab == 1) {
+        ImGui::BeginChild("##combat", ImVec2(400, 200), false, ImGuiWindowFlags_NoBackground);
+        ImGui::SetCursorPosY(1);
+        ImGui::SetCursorPosX(1);
+        ImGui::newcheckbox("killaura", &cheats::killaura); ImGui::SameLine();  ImGui::Bind("##killaura bind", &binds::killaurabind);
+        ImGui::SliderInt("reach aura", &cheats::reach, 0, 6, "%f");
+
+
+        ImGui::EndChild();
+    }
+    if (tab == 2) {
+        ImGui::BeginChild("##render", ImVec2(400, 200), false, ImGuiWindowFlags_NoBackground);
+        ImGui::SetCursorPosY(1);
+        ImGui::SetCursorPosX(1);
+        ImGui::newcheckbox("boxy 3d", &cheats::boxes);
+        ImGui::SameLine(0, 15);
+        ImGui::newcheckbox("xray", &cheats::xray); ImGui::SameLine();  ImGui::Bind("##xray bind", &binds::xraybind);;
+        ImGui::newcheckbox("Chams", &cheats::chams);
+        ImGui::SameLine(0, 15);
+        ImGui::newcheckbox("Clear ESP", &cheats::clearesp); ImGui::SameLine();  ImGui::Bind("##xeee", &binds::clearespbind);
+        ImGui::newcheckbox("Tracers", &cheats::tracers);
+        ImGui::SameLine(0, 15);
+        ImGui::newcheckbox("cavefinder", &cheats::cavefinder); ImGui::SameLine();  ImGui::Bind("##xdfsd bind", &binds::cavefinderbind);
+        ImGui::newcheckbox("Chest ESP", &cheats::chestesp);
+        ImGui::SameLine(0, 15);
+        ImGui::newcheckbox("Player List", &cheats::listapedalow);
+        ImGui::newcheckbox("NameTags Scale", &cheats::nametagsy);
+        ImGui::SameLine(0, 15);
+        ImGui::SliderInt("Scale Value", &cheats::scalename, 1.0, 20.0, "%f");
+        if (cheats::boxes) {
             ImGui::Separator();
+            ImGui::newcheckbox("rainbow?", &cheats::rainbowesp);
+            ImGui::SameLine(0, 15);
+            ImGui::ColorEdit4("##boxy 3d color", color10);
+            ImGui::newcheckbox("Fill boxy", &cheats::fillboxy);
         }
-        ImGui::EndGroup();
-        ImGui::SameLine();
-        ImGui::BeginGroup();
+
         ImGui::EndChild();
-        if (tab == 0)
-        {
-            ImGui::SameLine();
-            ImGui::BeginChild("##combat", ImVec2(420, 333), false);
-            ImGui::newcheckbox("killaura", &cheats::killaura); ImGui::SameLine();  ImGui::Bind("##killaura bind", &binds::killaurabind);
-            ImGui::SliderFloat("reach aura", &cheats::reach, 0, 6, "%f");
-            ImGui::EndChild();
-        }
-        if (tab == 1)
-        {
-            ImGui::SameLine();
-            ImGui::BeginChild("##movement", ImVec2(420, 333), false);
-            //ImGui::newcheckbox("speed", &cheats::speed);
-            //ImGui::newcheckbox("speed", &cheats::speed);
-
-            if (cheats::speed) {
-                ImGui::SliderFloat("x", &cheats::motionXf, 0, 5, "%f");
-                ImGui::SliderFloat("y", &cheats::motionYf, 0, 5, "%f");
-                ImGui::SliderFloat("z", &cheats::motionZf, 0, 5, "%f");
-            }
-            ImGui::newcheckbox("Fly", &cheats::fly); ImGui::SameLine(0, 5); ImGui::Bind("##fly bind", &binds::flybind, ImVec2(45, 25));
-            ImGui::newcheckbox("blink", &cheats::blink); ImGui::SameLine(0, 5); ImGui::Bind("##blink bind", &binds::blinkbind, ImVec2(45, 25));
-            ImGui::newcheckbox("Vclip (down)", &cheats::vclip); ImGui::SameLine(0, 5); ImGui::Bind("##vclip bind", &binds::vclipbind, ImVec2(45, 25));
-            ImGui::SliderFloat("vclip y", &cheats::vclipsize, 0.0, 20.0, "%f");
-            ImGui::newcheckbox("speedmine", &cheats::speedmine);
-            //ImGui::SliderFloat("new x", &cheats::newX, 0.0, 20.0, "%f");
-            //ImGui::SliderFloat("new y", &cheats::newY, 0.0, 20.0, "%f");
-            //ImGui::SliderFloat("new z", &cheats::newZ, 0.0, 20.0, "%f");
-            ImGui::EndChild();
-        }
-        if (tab == 2)
-        {
-            ImGui::SameLine();
-            ImGui::BeginChild("##visssuals", ImVec2(420, 333), false);
-            ImGui::newcheckbox("boxy 3d", &cheats::boxes);
-            if (cheats::boxes) {
-                ImGui::SameLine(0, 130);
-                ImGui::ColorEdit4("##boxy 3d color", color10);
-                ImGui::newcheckbox("rainbow?", &cheats::rainbowesp);
-                ImGui::newcheckbox("Fill boxy", &cheats::fillboxy);
-            }
-
-            ImGui::newcheckbox("xray", &cheats::xray); ImGui::SameLine();  ImGui::Bind("##xray bind", &binds::xraybind);
-            ImGui::newcheckbox("Chams", &cheats::chams);
-            ImGui::newcheckbox("Chest ESP", &cheats::chestesp);
-            ImGui::newcheckbox("Tracers", &cheats::tracers);
-            ImGui::newcheckbox("cavefinder", &cheats::cavefinder); ImGui::SameLine();  ImGui::Bind("##xdfsd bind", &binds::cavefinderbind);
-            ImGui::newcheckbox("Clear ESP", &cheats::clearesp); ImGui::SameLine();  ImGui::Bind("##xeee", &binds::clearespbind);
-            ImGui::newcheckbox("Player List", &cheats::listapedalow);
-            ImGui::EndChild();
-        }
-        if (tab == 3) {
-            niemawtabie = true;
-            ImGui::SameLine();
-
-            ImGui::BeginChild("##listapizd", ImVec2(420, 333), false);
-            ImGui::Text("Lista: ");
-            listagraczyihuj();
-            ImGui::EndChild();
-        }
-        ImGui::EndChild();
-        ImGui::End();
     }
-
-    if (cheats::listapedalow)
-    {
-        if (cheats::showmenu) {
-            ImGui::Begin("Player List", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground);
-        }
-        else {
-            ImGui::Begin("Player List", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove);
-        }
-
+    if (tab == 3) {
+        ImGui::BeginChild("##other", ImVec2(400, 200), false, ImGuiWindowFlags_NoBackground);
+        ImGui::SetCursorPosY(1);
+        ImGui::SetCursorPosX(1);
+        ImGui::Text("Lista: ");
         listagraczyihuj();
-        ImGui::End();
 
+
+        ImGui::EndChild();
     }
+    if (tab == 4) {
+        ImGui::BeginChild("##unsafe", ImVec2(400, 200), false, ImGuiWindowFlags_NoBackground);
+
+
+
+        ImGui::EndChild();
+    }
+    ImGui::End();
+
+}
+if (cheats::listapedalow)
+{
+    if (cheats::showmenu) {
+        ImGui::Begin("Player List", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+    }
+    else {
+        ImGui::Begin("Player List", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+    }
+
+    listagraczyihuj();
+    ImGui::End();
+
+}
     ImGui::EndFrame();
     ImGui::Render();
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
@@ -309,9 +400,7 @@ void render(_In_ HDC hDc)
     if (cheats::speed) {
         //env_->CallStaticVoidMethod(testxd, env_->GetStaticMethodID(env_->FindClass("pl/afyaan/module/impl/movement/Speed"), "onEnable", "()V"));
     }
-    if (cheats::speedmine) {
-        doSearch();
-    }
+
     if (cheats::fly)
     {
         env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "flyOn", "()V"));
@@ -331,6 +420,8 @@ void render(_In_ HDC hDc)
     if (cheats::players) {
 
     }
+
+ 
     env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "stepSize", "(F)V"), cheats::stepsize);
     env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "setMotionX", "(D)V"), (double)cheats::motionXf);
     env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "setMotionY", "(D)V"), (double)cheats::motionYf);
@@ -347,6 +438,10 @@ BOOL __stdcall hkSwapBuffers(_In_ HDC hDc)
     if (GetAsyncKeyState(VK_INSERT) & 1)
     {
         cheats::showmenu = !cheats::showmenu;
+    }
+    if (GetAsyncKeyState(VK_ESCAPE) & 1)
+    {
+        cheats::showmenu = false;
     }
     if (GetAsyncKeyState(binds::xraybind) & 1) {
         cheats::xray = !cheats::xray;
@@ -369,6 +464,15 @@ BOOL __stdcall hkSwapBuffers(_In_ HDC hDc)
     if (GetAsyncKeyState(binds::blinkbind) & 1) {
         cheats::blink = !cheats::blink;
     }
+    if (cheats::blink && cheats::blinkhook == "niema") {
+        HMODULE WS2 = GetModuleHandle("ws2_32.dll");
+        void* send_packet = GetProcAddress(WS2, "WSASend");
+        MH_CreateHook(send_packet, MySend, (void**)&pSend);
+        MH_EnableHook(send_packet);
+        cheats::blinkhook = "jest";
+        cout << "BLINK HOOKED " << endl;
+    }
+
     if (GetAsyncKeyState(binds::cavefinderbind) & 1) {
         cheats::cavefinder = !cheats::cavefinder;
     }
@@ -390,26 +494,38 @@ BOOL __stdcall hkSwapBuffers(_In_ HDC hDc)
     return oSwapBuffers(hDc);
 }
 BOOL __stdcall hglCallList(GLuint list) {
+
     if (cheats::xray) {
-        glDepthRange(1, 0);
+
+        glEnable(GL_DEPTH_TEST);
         oglCallList(list);
-        glDepthRange(0, 1);
+        glDisable(GL_DEPTH_TEST);
+    }
+    else {
+        glEnable(GL_DEPTH_TEST);
     }
 
     if (cheats::cavefinder) {
-        //glGetFloatv(GL_CURRENT_COLOR, curcolor);
         glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        //glColor4f(curcolor[0], curcolor[1], curcolor[2], 1.0);
     }
     else {
-        //glGetFloatv(GL_CURRENT_COLOR, curcolor);
+ 
         glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
-        // glPopMatrix();
-        // glColor4f(curcolor[0], curcolor[1], curcolor[2], 1.0);
+
     }
 
+
+    if (cheats::chams) {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_TEXTURE_2D);
+        oglCallList(list);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
+    }
+    else {
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
+    }
     if (cheats::clearesp) {
 
         glEnable(GL_CULL_FACE);
@@ -429,8 +545,17 @@ BOOL __stdcall hglCallList(GLuint list) {
 }
 void __stdcall hkglScalef(float x, float y, float z)  //nametagi and esp
 {
-    pniggerv2(x, y, z);
+    pniggerv2(x, y, z);    
 
+    if (x == -0.026666669175028801f)
+    {
+        if (cheats::nametagsy) {
+            glScalef(cheats::scalename, cheats::scalename, cheats::scalename);
+        }
+        else {
+            glScalef(1,1,1);
+        }
+    }
     if (x == 0.9375F and y == 0.9375F and z == 0.9375F)
     {
         if (cheats::boxes) {
@@ -508,10 +633,7 @@ void __stdcall hkglScalef(float x, float y, float z)  //nametagi and esp
     }
 
 
-    if (cheats::chams) {
-        glEnable(0x8037u);
-        glPolygonOffset(2, -2000000.0);
-    }
+
 }
 
 
@@ -568,29 +690,32 @@ void __stdcall myglOrtho(double left, double right, double bottom, double top, d
 
     oglOrtho(left, right, bottom, top, zNear, zFar);
 }
+
+
 int main(int argsLength, const char* args[])
 {
+
     //LI_FN(CreateThread)(nullptr, 0, Thread, nullptr, 0, nullptr);
     std::string consoleTitle = (std::string)skCrypt("blazingtool | you are currently using ") + compilation_date + " " + compilation_time + " build.";
     SetConsoleTitleA(consoleTitle.c_str());
     std::cout << xorstr_("\nwait...");
     system("cls");
-    system("color 3");
-    KeyAuthApp.init();
+    system("color d");
+    /*KeyAuthApp.init();
     if (!KeyAuthApp.data.success)
     {
         std::cout << skCrypt("\nbruh: ") << KeyAuthApp.data.message;
         Sleep(1500);
         exit(0);
     }
-    std::string username;
+       std::string username;
     std::string password;
     std::cout << skCrypt("\nusername: ");
     std::cin >> username;
     std::cout << skCrypt("\npassword: ");
     std::cin >> password;
     KeyAuthApp.login(username, password);
-    if (!KeyAuthApp.data.success)
+   if (!KeyAuthApp.data.success)
     {
         std::cout << skCrypt("\nbruh: ") << KeyAuthApp.data.message;
         Sleep(1500);
@@ -598,9 +723,9 @@ int main(int argsLength, const char* args[])
     }
     for (int i = 0; i < KeyAuthApp.data.subscriptions.size(); i++) {
         auto sub = KeyAuthApp.data.subscriptions.at(i);
-        //std::cout << skCrypt("\n name: ") << sub.name;
+        std::cout << skCrypt("\n name: ") << sub.name;
     }
-    KeyAuthApp.check();
+    KeyAuthApp.check();*/
     std::string usernameXD;
     cout << "\nmc username: ";
     cin >> usernameXD;
@@ -610,12 +735,11 @@ int main(int argsLength, const char* args[])
     std::string accesstoken;
     cout << "\naccesstoken: ";
     cin >> accesstoken;
-    /**
-* opengl hook Xd
-*/
-//LoadLibraryA("opengl32.dll");
+    std::string rammm;
+    cout << "\ngb ramu : ";
+    cin >> rammm;
+
     LI_FN(LoadLibraryA)(xorstr_("opengl32.dll"));
-    //LoadLibraryA("ws2_32.dll");
     MH_Initialize();
 
     if (HMODULE hMod = GetModuleHandleA("opengl32.dll")) {
@@ -630,14 +754,11 @@ int main(int argsLength, const char* args[])
         MH_CreateHook(nigger, hkglScalef, reinterpret_cast<void**>(&pniggerv2));
         MH_CreateHook(gltranslatefptr, myglTranslatef, reinterpret_cast<void**>(&ogltranslatef));
         MH_CreateHook(glorthoptr, myglOrtho, reinterpret_cast<void**>(&oglOrtho));
-
-        MH_QueueEnableHook(ptr);
-        MH_QueueEnableHook(call);
-        MH_QueueEnableHook(nigger);
-        MH_QueueEnableHook(gltranslatefptr);
-        MH_QueueEnableHook(glorthoptr);
+      
     }
-    MH_ApplyQueued();
+
+
+    MH_EnableHook(MH_ALL_HOOKS);
     Sleep(1000);
     string dir = GetExeDir();
     string gameDir = dir + string("\\gameDir");
@@ -652,8 +773,8 @@ int main(int argsLength, const char* args[])
     string mainMethod("pl/blazingpack/launcher/BlazingPackLauncher");
     unique_ptr<Loader> loader(new Loader(jarPath, mainMethod));
 
-    loader->AddJVMArg("-Xmx5G");
-
+    std:string ramkoncowy = "-Xmx" + rammm + "G";
+    loader->AddJVMArg(ramkoncowy.c_str());
     loader->AddJVMArg("-Xverify:none");
     loader->AddJVMArg("-XX:+UnlockExperimentalVMOptions");
     loader->AddJVMArg("-XX:+UseG1GC");
@@ -689,75 +810,12 @@ int main(int argsLength, const char* args[])
     loader->RunFromMemory(rawData, sizeof(rawData), args, argsLength);
     jvm_ = loader->jvm;
     env_ = loader->env;
-    KeyAuthApp.check();
+    //KeyAuthApp.check();
     loader->Run(args, argsLength);
+
 }
 
-void listagraczyihuj() {
-    jclass bpPlayer = env_->FindClass("pl/afyaan/module/impl/BpPlayer");
-    jfieldID bpPlayers = env_->GetStaticFieldID(bpPlayer, "bpPlayers", "Ljava/util/List;");
-    jobject players = env_->GetStaticObjectField(bpPlayer, bpPlayers);
 
-    jclass listClass = env_->FindClass("java/util/ArrayList");
-    jmethodID listSize = env_->GetMethodID(listClass, "size", "()I");
-    jmethodID listGet = env_->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
-    playersSize = env_->CallIntMethod(players, listSize);
-
-    items.clear();
-    for (int i = 0; i < playersSize; i++) {
-        jobject player = env_->CallObjectMethod(players, listGet, i);
-
-        jfieldID userNameField = env_->GetFieldID(bpPlayer, "userName", "Ljava/lang/String;");
-        userNameGet = env_->GetMethodID(bpPlayer, "getUserName", "()Ljava/lang/String;");
-        jmethodID xGet = env_->GetMethodID(bpPlayer, "getX", "()D");
-        jmethodID yGet = env_->GetMethodID(bpPlayer, "getY", "()D");
-        jmethodID zGet = env_->GetMethodID(bpPlayer, "getZ", "()D");
-        userNamegraczza = (jstring)env_->CallObjectMethod(player, userNameGet);
-        int x = env_->CallDoubleMethod(player, xGet);
-        int y = env_->CallDoubleMethod(player, yGet);
-        int z = env_->CallDoubleMethod(player, zGet);
-        string xfixed = to_string(x);
-        string yfixed = to_string(y);
-        string zfixed = to_string(z);
-        string nickxddd = env_->GetStringUTFChars(userNamegraczza, 0);
-        int dlugoscnicku = nickxddd.length();
-        if (dlugoscnicku >= 3) {
-            ImGui::Text(env_->GetStringUTFChars(userNamegraczza, 0));
-            ImGui::SameLine();
-            ImGui::Text("|");
-            ImGui::SameLine();
-
-            ImGui::Text("X:");
-
-            ImGui::SameLine();
-
-            ImGui::Text(xfixed.c_str());
-
-            ImGui::SameLine();
-
-            ImGui::Text("Y:");
-
-            ImGui::SameLine();
-
-            ImGui::Text(yfixed.c_str());
-
-            ImGui::SameLine();
-
-            ImGui::Text("Z:");
-
-            ImGui::SameLine();
-
-            ImGui::Text(zfixed.c_str());
-
-        }
-        BpPlayer newPlayer;
-        newPlayer.userName = userNamegraczza;
-        newPlayer.x = x;
-        newPlayer.y = y;
-        newPlayer.z = z;
-        items.push_back(newPlayer);
-    }
-}
 std::string tm_to_readable_time(tm ctx) {
     char buffer[80];
 

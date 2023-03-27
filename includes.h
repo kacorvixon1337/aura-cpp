@@ -66,8 +66,8 @@ jmethodID userNameGet;
 jint playersSize;
 jstring userNamegraczza;
 bool niemawtabie = false;
-static ImVec4 active = ImColor(35, 120, 247);
-static ImVec4 inactive = ImColor(65, 71, 67);
+static ImU32 active = ImColor(255, 110, 177, 255);
+static ImU32 inactive = ImColor(252, 222, 238);
 
 vector<BpPlayer> items;
 

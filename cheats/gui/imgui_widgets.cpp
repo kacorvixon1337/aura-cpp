@@ -963,16 +963,19 @@ bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags
     if (!ItemAdd(bb, id))
         return false;
 
-    if (g.CurrentItemFlags & ImGuiItemFlags_ButtonRepeat)
+    if (g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
         flags |= ImGuiButtonFlags_Repeat;
+
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
     // Render
     const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
     RenderNavHighlight(bb, id);
-    RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+    RenderFrame({ bb.Min.x  , bb.Max.y - 10 }, { bb.Max.x  , bb.Max.y + (float)2 }, IM_COL32(0, 0, 0, 255), false, 3);
+    RenderFrame(bb.Min, bb.Max, col, false, 2);
 
+    ;
     if (g.LogEnabled)
         LogSetNextTextDecoration("[", "]");
     RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
@@ -981,7 +984,7 @@ bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags
     //if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))
     //    CloseCurrentPopup();
 
-    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.LastItemStatusFlags);
+    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
     return pressed;
 }
 
@@ -1470,74 +1473,52 @@ bool ImGui::newcheckbox(const char* label, bool* v)
         return false;
 
     ImGuiContext& g = *GImGui;
+
     const ImGuiStyle& style = g.Style;
     const ImGuiID id = window->GetID(label);
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
-    const float size = GetWindowWidth() - 207;
 
     const float square_sz = GetFrameHeight();
     const ImVec2 pos = window->DC.CursorPos;
-    const ImRect rect(pos, pos + ImVec2(size, 15));
-    const ImRect click_bb(rect.Max - ImVec2(15, 15), rect.Max);
 
-    ItemSize(rect, style.FramePadding.y);
-    if (!ItemAdd(rect, id))
+    ImVec2 size = CalcItemSize({ 160, 25 }, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+    const ImRect bb(pos, pos + size);
+    const ImRect total_bb(pos, pos + ImVec2(square_sz + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), label_size.y + style.FramePadding.y * 2.0f));
+    ItemSize(size, style.FramePadding.y);
+    if (!ItemAdd(bb, id))
     {
         IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (*v ? ImGuiItemStatusFlags_Checked : 0));
         return false;
     }
 
     bool hovered, held;
-    bool pressed = ButtonBehavior(click_bb, id, &hovered, &held);
+    bool pressed = ButtonBehavior(bb, id, &hovered, &held);
     if (pressed)
     {
         *v = !(*v);
         MarkItemEdited(id);
     }
+    static ImU32 active = ImColor(255, 110, 177, 255);
+    static ImU32 inactive = ImColor(252, 222, 238);
 
-    static std::map <ImGuiID, checkbox_anim> anim;
-    auto it_anim = anim.find(id);
-    if (it_anim == anim.end())
-    {
-        anim.insert({ id, {0, 0, 0} });
-        it_anim = anim.find(id);
+    const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
+    RenderNavHighlight(total_bb, id);
+    const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+    //RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
+    RenderFrame({ bb.Min.x  , bb.Max.y - 10 }, { bb.Max.x  , bb.Max.y + (float)2 }, IM_COL32(0, 0, 0, 255), false, 3);
+    RenderFrame(bb.Min, bb.Max, col, false, 2);
+    ImU32 check_col = GetColorU32(ImGuiCol_CheckMark);
+    bool mixed_value = (g.LastItemData.InFlags & ImGuiItemFlags_MixedValue) != 0;
+
+
+    ImVec2 label_pos = ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y);
+    if (g.LogEnabled)
+        LogRenderedText(&label_pos, mixed_value ? "[~]" : *v ? "[x]" : "[ ]");
+    if (label_size.x > 0.0f) {
+        ImGui::PushStyleColor(ImGuiCol_Text, *v ? active : inactive);
+        RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+        ImGui::PopStyleColor();
     }
-
-    if (*v)
-        it_anim->second.active_outline_anim += 3 * (1.f - ImGui::GetIO().DeltaTime);
-    else
-        it_anim->second.active_outline_anim -= 3 * (1.f - ImGui::GetIO().DeltaTime);
-
-    if (it_anim->second.active_outline_anim > 20)
-        it_anim->second.active_outline_anim = 20;
-    else if (it_anim->second.active_outline_anim < 0)
-        it_anim->second.active_outline_anim = 0;
-
-    if (*v)
-        it_anim->second.active_text_anim += 8 * (1.f - ImGui::GetIO().DeltaTime);
-    else
-        it_anim->second.active_text_anim -= 8 * (1.f - ImGui::GetIO().DeltaTime);
-
-    if (it_anim->second.active_text_anim > 120)
-        it_anim->second.active_text_anim = 120;
-    else if (it_anim->second.active_text_anim < 0)
-        it_anim->second.active_text_anim = 0;
-
-    if (*v)
-        it_anim->second.active_rect_alpha += 25 * (1.f - ImGui::GetIO().DeltaTime);
-    else
-        it_anim->second.active_rect_alpha -= 25 * (1.f - ImGui::GetIO().DeltaTime);
-
-    if (it_anim->second.active_rect_alpha > 255)
-        it_anim->second.active_rect_alpha = 255;
-    else if (it_anim->second.active_rect_alpha < 0)
-        it_anim->second.active_rect_alpha = 0;
-
-    window->DrawList->AddRectFilled(rect.Max - ImVec2(12, 12), rect.Max, ImColor(255, 255, 255, 15), 2.f);
-    window->DrawList->AddRectFilled(rect.Max - ImVec2(12, 12), rect.Max, ImColor(100, 108, 252, it_anim->second.active_rect_alpha), 2.f);
-    RenderCheckMark(window->DrawList, rect.Max - ImVec2(10, 10), ImColor(11, 11, 11, it_anim->second.active_rect_alpha), 8.f);
-	window->DrawList->AddRect(rect.Max - ImVec2(12, 12), rect.Max, ImColor(255, 255, 255, (15 + it_anim->second.active_outline_anim)), 2.f);
-    window->DrawList->AddText(rect.Min + ImVec2(12, 1), ImColor(255, 255, 255, (135 + it_anim->second.active_text_anim)), label);
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (*v ? ImGuiItemStatusFlags_Checked : 0));
     return pressed;
 }
@@ -3408,9 +3389,7 @@ bool ImGui::SliderBehavior(const ImRect& bb, ImGuiID id, ImGuiDataType data_type
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a slider, they are all required.
 // Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
-bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
-{
-    ImGuiWindow* window = GetCurrentWindow();
+/* ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
         return false;
 
@@ -3483,6 +3462,87 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
 
     if (label_size.x > 0.0f)
         RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, frame_bb.Min.y + style.FramePadding.y), label);
+
+    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.LastItemStatusFlags);
+    return value_changed;*/
+bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
+{
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext& g = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID id = window->GetID(label);
+    const float w = CalcItemWidth();
+
+    const ImVec2 label_size = CalcTextSize(label, NULL, true);
+    const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+    const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
+
+    const bool temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
+    ItemSize(total_bb, style.FramePadding.y);
+    if (!ItemAdd(total_bb, id, &frame_bb, temp_input_allowed ? ImGuiItemAddFlags_Focusable : 0))
+        return false;
+
+    // Default format string when passing NULL
+    if (format == NULL)
+        format = DataTypeGetInfo(data_type)->PrintFmt;
+    else if (data_type == ImGuiDataType_S32 && strcmp(format, "%d") != 0) // (FIXME-LEGACY: Patch old "%.0f" format string to use "%d", read function more details.)
+        format = PatchFormatStringFloatToInt(format);
+
+    // Tabbing or CTRL-clicking on Slider turns it into an input box
+    const bool hovered = ItemHoverable(frame_bb, id);
+    bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
+    if (!temp_input_is_active)
+    {
+        const bool focus_requested = temp_input_allowed && (window->DC.LastItemStatusFlags & ImGuiItemStatusFlags_Focused) != 0;
+        const bool clicked = (hovered && g.IO.MouseClicked[0]);
+        if (focus_requested || clicked || g.NavActivateId == id || g.NavInputId == id)
+        {
+            SetActiveID(id, window);
+            SetFocusID(id, window);
+            FocusWindow(window);
+            g.ActiveIdUsingNavDirMask |= (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
+            if (temp_input_allowed && (focus_requested || (clicked && g.IO.KeyCtrl) || g.NavInputId == id))
+                temp_input_is_active = true;
+        }
+    }
+
+    if (temp_input_is_active)
+    {
+        // Only clamp CTRL+Click input when ImGuiSliderFlags_AlwaysClamp is set
+        const bool is_clamp_input = (flags & ImGuiSliderFlags_AlwaysClamp) != 0;
+        return TempInputScalar(frame_bb, id, label, data_type, p_data, format, is_clamp_input ? p_min : NULL, is_clamp_input ? p_max : NULL);
+    }
+
+    // Draw frame
+    const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+    RenderNavHighlight(frame_bb, id);
+    RenderFrame(frame_bb.Min, { frame_bb.Max.x - 58 , frame_bb.Max.y }, frame_col, true, g.Style.FrameRounding);
+
+    // Slider behavior
+    ImRect grab_bb;
+    const ImRect pizda(ImVec4(frame_bb.Min.x, (float)frame_bb.Min.y, frame_bb.Max.x - 50, (float)frame_bb.Max.y));
+    const bool value_changed = SliderBehavior(pizda, id, data_type, p_data, p_min, p_max, format, flags, &grab_bb);
+    if (value_changed)
+        MarkItemEdited(id);
+
+
+
+    // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
+    char value_buf[64];
+    const char* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), data_type, p_data, format);
+    if (g.LogEnabled)
+        LogSetNextTextDecoration("{", "}");
+    RenderTextClipped(frame_bb.Min, { frame_bb.Max.x - 50,frame_bb.Max.y }, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
+
+    if (label_size.x > 0.0f)
+        RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x - 50, frame_bb.Min.y + style.FramePadding.y), label);
+
+    if (grab_bb.Max.x > grab_bb.Min.x)
+        window->DrawList->AddRectFilled(grab_bb.Min, { grab_bb.Max.x - 8 ,grab_bb.Max.y }, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
+
 
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.LastItemStatusFlags);
     return value_changed;

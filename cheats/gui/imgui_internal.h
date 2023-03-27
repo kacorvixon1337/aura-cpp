@@ -1350,6 +1350,17 @@ struct ImGuiMetricsConfig
         ShowTablesRectsType = -1;
     }
 };
+struct ImGuiLastItemData
+{
+    ImGuiID                 ID;
+    ImGuiItemFlags          InFlags;            // See ImGuiItemFlags_
+    ImGuiItemStatusFlags    StatusFlags;        // See ImGuiItemStatusFlags_
+    ImRect                  Rect;               // Full rectangle
+    ImRect                  NavRect;            // Navigation scoring rectangle (not displayed)
+    ImRect                  DisplayRect;        // Display rectangle (only if ImGuiItemStatusFlags_HasDisplayRect is set)
+
+    ImGuiLastItemData() { memset(this, 0, sizeof(*this)); }
+};
 
 struct IMGUI_API ImGuiStackSizes
 {
@@ -1463,6 +1474,7 @@ struct ImGuiContext
     // Next window/item data
     ImGuiNextWindowData     NextWindowData;                     // Storage for SetNextWindow** functions
     ImGuiNextItemData       NextItemData;                       // Storage for SetNextItem** functions
+    ImGuiLastItemData       LastItemData;
 
     // Shared stacks
     ImVector<ImGuiColorMod> ColorStack;                         // Stack for PushStyleColor()/PopStyleColor() - inherited by Begin()
@@ -2475,6 +2487,7 @@ namespace ImGui
 
     // Inputs
     // FIXME: Eventually we should aim to move e.g. IsActiveIdUsingKey() into IsKeyXXX functions.
+
     IMGUI_API void          SetItemUsingMouseWheel();
     IMGUI_API void          SetActiveIdUsingNavAndKeys();
     inline bool             IsActiveIdUsingNavDir(ImGuiDir dir)                         { ImGuiContext& g = *GImGui; return (g.ActiveIdUsingNavDirMask & (1 << dir)) != 0; }
