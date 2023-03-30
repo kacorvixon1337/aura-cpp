@@ -54,6 +54,7 @@ JNIEnv* env_;
 
 Position chest;
 Position entity;
+Position nametagsys;
 Position largeChest;
 
 LPCSTR TargetProcess = "javaw.exe";
@@ -133,7 +134,7 @@ void draw(Position& position, Radius radius)
 		glVertex3f(radius.x / 2, -radius.y / 2, radius.z / 2);
 		glEnd();
 
-		glColor4f(color10tak, color20tak, color30tak, 0.2F);
+		glColor4f(0.1f, 0.1f, 0.1f, 0.2F);
 
 		glBegin(GL_POLYGON);
 		glVertex3f(radius.x / 2, radius.y / 2, -radius.z / 2);
