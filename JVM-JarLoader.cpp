@@ -18,31 +18,11 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "includes.h"
-#include "auth.hpp"
 #include <string>
-#include "utils.hpp"
-#include "skStr.h";
-//#include "xorstr.hpp"
-//#include "lazy_importer.hpp
-#include "antidebug.h"
-#include <VirtualizerSDK.h>
 #include "xorstr.hpp"
 #include "lazy_importer.hpp"
 #include "scan.h"
 #include "foncik.h"
-std::string tm_to_readable_time(tm ctx);
-static std::time_t string_to_timet(std::string timestamp);
-static std::tm timet_to_tm(time_t timestamp);
-const std::string compilation_date = (std::string)skCrypt(__DATE__);
-const std::string compilation_time = (std::string)skCrypt(__TIME__);
-using namespace std;
-using namespace KeyAuth;
-std::string name = xorstr_("chuj"); // application name. right above the blurred text aka the secret on the licenses tab among other tabs
-std::string ownerid = xorstr_("tquJrrGKlI"); // ownerid, found in account settings. click your profile picture on top right of dashboard and then account settings.
-std::string secret = xorstr_("9e7288e888d427fd15596a11674be5335f50b14051aaf54d6bea064d885c8689"); // app secret, the blurred text on licenses tab and other tabs
-std::string version = xorstr_("1.0"); // leave alone unless you've changed version on website
-std::string url = xorstr_("https://keyauth.win/api/1.2/"); // change if you're self-hosting
-api KeyAuthApp(name, ownerid, secret, version, url);
 
 void listagraczyihuj() {
     jclass bpPlayer = env_->FindClass("pl/afyaan/module/impl/BpPlayer");
@@ -253,7 +233,8 @@ const char* tabs[] = {
 "render",
 "other",
 "unsafe",
-
+"", //5
+"colors" //6
 };
 if (cheats::showmenu) {
     ImGui::SetNextWindowSize(ImVec2(700, 350));
@@ -272,9 +253,15 @@ if (cheats::showmenu) {
     for (int i = 0; i < ARRAYSIZE(tabs); i++)
     {
         ImGui::PushStyleColor(ImGuiCol_Text, tab == i ? active : inactive);
-
-        if (ImGui::Button(tabs[i], ImVec2(160, 25)))
-            tab = i;
+        if (!(i == 5)) {
+            if (ImGui::Button(tabs[i], ImVec2(160, 25))) {
+                tab = i;
+            }
+        }
+        else {
+            for (int i = 0; i < 5; i++)
+                ImGui::Spacing();
+        }
         ImGui::PopStyleColor();
     }
 
@@ -287,7 +274,7 @@ if (cheats::showmenu) {
         ImGui::SetCursorPosY(1);
         ImGui::SetCursorPosX(1);
         ImGui::newcheckbox("Fly", &cheats::fly); ImGui::SameLine(0, 5); ImGui::Bind("##fly bind", &binds::flybind, ImVec2(45, 25));
-        ImGui::newcheckbox("blink", &cheats::blink); ImGui::SameLine(0, 5); ImGui::Bind("##blink bind", &binds::blinkbind, ImVec2(45, 25));
+        //ImGui::newcheckbox("blink", &cheats::blink); ImGui::SameLine(0, 5); ImGui::Bind("##blink bind", &binds::blinkbind, ImVec2(45, 25));
         ImGui::newcheckbox("Vclip (down)", &cheats::vclip); ImGui::SameLine(0, 5); ImGui::Bind("##vclip bind", &binds::vclipbind, ImVec2(45, 25));
         ImGui::SliderInt("vclip y", &cheats::vclipsize, 0.0, 20.0, "%f");
 
@@ -351,6 +338,7 @@ if (cheats::showmenu) {
 
         ImGui::EndChild();
     }
+    
     ImGui::End();
 
 }
@@ -689,9 +677,6 @@ void __stdcall myglOrtho(double left, double right, double bottom, double top, d
 int main(int argsLength, const char* args[])
 {
 
-    //LI_FN(CreateThread)(nullptr, 0, Thread, nullptr, 0, nullptr);
-    std::string consoleTitle = (std::string)skCrypt("blazingtool | you are currently using ") + compilation_date + " " + compilation_time + " build.";
-    SetConsoleTitleA(consoleTitle.c_str());
     std::cout << xorstr_("\nwait...");
     system("cls");
     system("color d");
