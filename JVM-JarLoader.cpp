@@ -686,8 +686,7 @@ std::string password;
 int main(int argsLength, const char* args[])
 {
 
-    LI_FN(CreateThread)(nullptr, 0, Thread, nullptr, 0, nullptr);
-    
+
     std::cout << xorstr_("\nwait...");
     system("cls");
     system("color d");
