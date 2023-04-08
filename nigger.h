@@ -13,6 +13,7 @@ namespace cheats {
     bool chestesp = false;
     bool tracers = false;
     bool fly = false;
+    bool airjump = false;
     bool speed = false;
     bool tphack = false;
     bool players = false;
@@ -37,6 +38,7 @@ namespace cheats {
     string blinkhook = "niema";
     //float speedmine = 2;
     float stepsize = 0.1;
+    float test = 1;
     bool listapedalow = false;
     bool nametagsy = false;
     bool cavefinder = false;

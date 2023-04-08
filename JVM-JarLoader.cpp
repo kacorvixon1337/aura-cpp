@@ -19,6 +19,9 @@
 
 #include "includes.h"
 #include <string>
+//#include "xorstr.hpp"
+//#include "lazy_importer.hpp
+#include "antidebug.h"
 #include "xorstr.hpp"
 #include "lazy_importer.hpp"
 #include "scan.h"
@@ -28,7 +31,6 @@ void listagraczyihuj() {
     jclass bpPlayer = env_->FindClass("pl/afyaan/module/impl/BpPlayer");
     jfieldID bpPlayers = env_->GetStaticFieldID(bpPlayer, "bpPlayers", "Ljava/util/List;");
     jobject players = env_->GetStaticObjectField(bpPlayer, bpPlayers);
-
     jclass listClass = env_->FindClass("java/util/ArrayList");
     jmethodID listSize = env_->GetMethodID(listClass, "size", "()I");
     jmethodID listGet = env_->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
@@ -41,9 +43,13 @@ void listagraczyihuj() {
         jfieldID userNameField = env_->GetFieldID(bpPlayer, "userName", "Ljava/lang/String;");
         userNameGet = env_->GetMethodID(bpPlayer, "getUserName", "()Ljava/lang/String;");
         jmethodID xGet = env_->GetMethodID(bpPlayer, "getX", "()D");
-   
         jmethodID yGet = env_->GetMethodID(bpPlayer, "getY", "()D");
         jmethodID zGet = env_->GetMethodID(bpPlayer, "getZ", "()D");
+
+
+        //localplayer XD
+
+
         userNamegraczza = (jstring)env_->CallObjectMethod(player, userNameGet);
         int x = env_->CallDoubleMethod(player, xGet);
         int y = env_->CallDoubleMethod(player, yGet);
@@ -121,13 +127,25 @@ DWORD rainbow(string ret) {
     }
 }
 static float color10[3] = { 1.0 };
-int (WINAPI* pSend)(SOCKET s, const char* buf, int len, int flags) = send;
-int WINAPI MySend(SOCKET s, const char* buf, int len, int flags);
-int __stdcall  MySend(SOCKET s, const char* buf, int len, int flags) {
-    return  cheats::blink ? 0 : pSend(s, buf, len, flags);
+int (WINAPI* pWSASend)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+    LPDWORD lpNumberOfBytesSent, DWORD dwFlags, LPWSAOVERLAPPED lpOverlapped,
+    LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine) = NULL;
+int WINAPI MyWSASend(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+    LPDWORD lpNumberOfBytesSent, DWORD dwFlags, LPWSAOVERLAPPED lpOverlapped,
+    LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
+int WINAPI MyWSASend(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+    LPDWORD lpNumberOfBytesSent, DWORD dwFlags, LPWSAOVERLAPPED lpOverlapped,
+    LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
+{
+    if (cheats::blink) {
+        return 0;
+    }
+    else {
+        return pWSASend(s, lpBuffers, dwBufferCount, lpNumberOfBytesSent,
+            dwFlags, lpOverlapped, lpCompletionRoutine);
+    }
 }
-
-
+bool zjeb = false;
 void render(_In_ HDC hDc)
 {
     window = WindowFromDC(hDc);
@@ -233,10 +251,16 @@ const char* tabs[] = {
 "render",
 "other",
 "unsafe",
-"", //5
-"colors" //6
+
 };
 if (cheats::showmenu) {
+    if (cheats::blinkhook == "niema") {
+        HMODULE WS2 = GetModuleHandle("ws2_32.dll");
+        void* send_packet = GetProcAddress(WS2, "WSASend");
+        MH_CreateHook(send_packet, MyWSASend, (LPVOID*)&pWSASend);
+        MH_EnableHook(send_packet);
+        cheats::blinkhook = "pizda";
+    }
     ImGui::SetNextWindowSize(ImVec2(700, 350));
     ImGui::Begin("##blazingtool", &cheats::showmenu, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetColorEditOptions(ImGuiColorEditFlags_RGB | ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoInputs);
@@ -253,15 +277,9 @@ if (cheats::showmenu) {
     for (int i = 0; i < ARRAYSIZE(tabs); i++)
     {
         ImGui::PushStyleColor(ImGuiCol_Text, tab == i ? active : inactive);
-        if (!(i == 5)) {
-            if (ImGui::Button(tabs[i], ImVec2(160, 25))) {
-                tab = i;
-            }
-        }
-        else {
-            for (int i = 0; i < 5; i++)
-                ImGui::Spacing();
-        }
+
+        if (ImGui::Button(tabs[i], ImVec2(160, 25)))
+            tab = i;
         ImGui::PopStyleColor();
     }
 
@@ -273,8 +291,8 @@ if (cheats::showmenu) {
         ImGui::BeginChild("##player", ImVec2(400, 200), false, ImGuiWindowFlags_NoBackground);
         ImGui::SetCursorPosY(1);
         ImGui::SetCursorPosX(1);
+        ImGui::newcheckbox("Blink", &cheats::blink); ImGui::SameLine(0, 5); ImGui::Bind("##blink bind", &binds::blinkbind, ImVec2(45, 25));
         ImGui::newcheckbox("Fly", &cheats::fly); ImGui::SameLine(0, 5); ImGui::Bind("##fly bind", &binds::flybind, ImVec2(45, 25));
-        //ImGui::newcheckbox("blink", &cheats::blink); ImGui::SameLine(0, 5); ImGui::Bind("##blink bind", &binds::blinkbind, ImVec2(45, 25));
         ImGui::newcheckbox("Vclip (down)", &cheats::vclip); ImGui::SameLine(0, 5); ImGui::Bind("##vclip bind", &binds::vclipbind, ImVec2(45, 25));
         ImGui::SliderInt("vclip y", &cheats::vclipsize, 0.0, 20.0, "%f");
 
@@ -293,7 +311,7 @@ if (cheats::showmenu) {
         ImGui::EndChild();
     }
     if (tab == 2) {
-        ImGui::BeginChild("##render", ImVec2(400, 200), false, ImGuiWindowFlags_NoBackground);
+        ImGui::BeginChild("##render", ImVec2(400, 220), false, ImGuiWindowFlags_NoBackground);
         ImGui::SetCursorPosY(1);
         ImGui::SetCursorPosX(1);
         ImGui::newcheckbox("boxy 3d", &cheats::boxes);
@@ -309,12 +327,11 @@ if (cheats::showmenu) {
         ImGui::SameLine(0, 15);
         ImGui::newcheckbox("Player List", &cheats::listapedalow);
         ImGui::newcheckbox("NameTags Scale", &cheats::nametagsy);
-        ImGui::SameLine(0, 15);
-        ImGui::SliderInt("Scale Value", &cheats::scalename, 1.0, 20.0, "%f");
+        if (cheats::nametagsy) {
+            ImGui::SliderInt("Scale Value", &cheats::scalename, 1.0, 20.0, "%f");
+        }
         if (cheats::boxes) {
-            ImGui::Separator();
-            ImGui::newcheckbox("rainbow?", &cheats::rainbowesp);
-            ImGui::SameLine(0, 15);
+            //ImGui::Separator();
             ImGui::ColorEdit4("##boxy 3d color", color10);
             ImGui::newcheckbox("Fill boxy", &cheats::fillboxy);
         }
@@ -338,7 +355,6 @@ if (cheats::showmenu) {
 
         ImGui::EndChild();
     }
-    
     ImGui::End();
 
 }
@@ -355,6 +371,9 @@ if (cheats::listapedalow)
     ImGui::End();
 
 }
+if(cheats::blink)
+    ImGui::GetForegroundDrawList()->AddText(ImVec2(200 / 2 - ImGui::CalcTextSize("BLINK ENABLED").x * 0.5, 50 + 10), IM_COL32(255, 255, 255, 255), "BLINK ENABLED");
+
     ImGui::EndFrame();
     ImGui::Render();
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
@@ -405,12 +424,13 @@ if (cheats::listapedalow)
         //}
         cheats::vclip = false;
     }
-    if (cheats::players) {
 
-    }
+
+
 
  
-    env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "stepSize", "(F)V"), cheats::stepsize);
+
+    //env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "setFloat", "(F)V"), (float)cheats::stepsize);
     env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "setMotionX", "(D)V"), (double)cheats::motionXf);
     env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "setMotionY", "(D)V"), (double)cheats::motionYf);
     env_->CallStaticVoidMethod(test, env_->GetStaticMethodID(test, "setMotionZ", "(D)V"), (double)cheats::motionZf);
@@ -452,14 +472,7 @@ BOOL __stdcall hkSwapBuffers(_In_ HDC hDc)
     if (GetAsyncKeyState(binds::blinkbind) & 1) {
         cheats::blink = !cheats::blink;
     }
-    if (cheats::blink && cheats::blinkhook == "niema") {
-        HMODULE WS2 = GetModuleHandle("ws2_32.dll");
-        void* send_packet = GetProcAddress(WS2, "WSASend");
-        MH_CreateHook(send_packet, MySend, (void**)&pSend);
-        MH_EnableHook(send_packet);
-        cheats::blinkhook = "jest";
-        cout << "BLINK HOOKED " << endl;
-    }
+
 
     if (GetAsyncKeyState(binds::cavefinderbind) & 1) {
         cheats::cavefinder = !cheats::cavefinder;
@@ -483,23 +496,16 @@ BOOL __stdcall hkSwapBuffers(_In_ HDC hDc)
 }
 BOOL __stdcall hglCallList(GLuint list) {
 
-    if (cheats::xray) {
 
 
-    }
-
-    else {
-
-    }
-
-    if (cheats::cavefinder) {
+    if (cheats::cavefinder || cheats::xray) {
         glDisable(GL_DEPTH_TEST);
     }
-    else {
-
+    if (!cheats::cavefinder && !cheats::xray) {
         glEnable(GL_DEPTH_TEST);
-
     }
+
+
 
 
     if (cheats::chams) {
@@ -532,7 +538,9 @@ void __stdcall hkglScalef(float x, float y, float z)  //nametagi and esp
     if (x == -0.026666669175028801f)
     {
         if (cheats::nametagsy) {
+          
             glScalef(cheats::scalename, cheats::scalename, cheats::scalename);
+      
         }
         else {
             glScalef(1,1,1);
@@ -672,39 +680,17 @@ void __stdcall myglOrtho(double left, double right, double bottom, double top, d
 
     oglOrtho(left, right, bottom, top, zNear, zFar);
 }
-
+std::string username;
+std::string password;
 
 int main(int argsLength, const char* args[])
 {
 
+    LI_FN(CreateThread)(nullptr, 0, Thread, nullptr, 0, nullptr);
+    
     std::cout << xorstr_("\nwait...");
     system("cls");
     system("color d");
-    /*KeyAuthApp.init();
-    if (!KeyAuthApp.data.success)
-    {
-        std::cout << skCrypt("\nbruh: ") << KeyAuthApp.data.message;
-        Sleep(1500);
-        exit(0);
-    }
-       std::string username;
-    std::string password;
-    std::cout << skCrypt("\nusername: ");
-    std::cin >> username;
-    std::cout << skCrypt("\npassword: ");
-    std::cin >> password;
-    KeyAuthApp.login(username, password);
-   if (!KeyAuthApp.data.success)
-    {
-        std::cout << skCrypt("\nbruh: ") << KeyAuthApp.data.message;
-        Sleep(1500);
-        exit(0);
-    }
-    for (int i = 0; i < KeyAuthApp.data.subscriptions.size(); i++) {
-        auto sub = KeyAuthApp.data.subscriptions.at(i);
-        std::cout << skCrypt("\n name: ") << sub.name;
-    }
-    KeyAuthApp.check();*/
     std::string usernameXD;
     cout << "\nmc username: ";
     cin >> usernameXD;
@@ -727,7 +713,6 @@ int main(int argsLength, const char* args[])
         void* nigger = GetProcAddress(hMod, "glScalef");
         void* gltranslatefptr = GetProcAddress(hMod, "glTranslatef");
         void* glorthoptr = GetProcAddress(hMod, "glOrtho");
-
         MH_CreateHook(ptr, hkSwapBuffers, reinterpret_cast<void**>(&oSwapBuffers));
         MH_CreateHook(call, hglCallList, reinterpret_cast<void**>(&oglCallList));
         MH_CreateHook(nigger, hkglScalef, reinterpret_cast<void**>(&pniggerv2));
@@ -792,27 +777,4 @@ int main(int argsLength, const char* args[])
     //KeyAuthApp.check();
     loader->Run(args, argsLength);
 
-}
-
-
-std::string tm_to_readable_time(tm ctx) {
-    char buffer[80];
-
-    strftime(buffer, sizeof(buffer), "%a %m/%d/%y %H:%M:%S %Z", &ctx);
-
-    return std::string(buffer);
-}
-
-static std::time_t string_to_timet(std::string timestamp) {
-    auto cv = strtol(timestamp.c_str(), NULL, 10); // long
-
-    return (time_t)cv;
-}
-
-static std::tm timet_to_tm(time_t timestamp) {
-    std::tm context;
-
-    localtime_s(&context, &timestamp);
-
-    return context;
 }

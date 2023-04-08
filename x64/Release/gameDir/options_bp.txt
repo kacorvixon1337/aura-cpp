@@ -11,13 +11,13 @@ bobView:true
 anaglyph3d:false
 maxFps:255
 fboEnable:true
-difficulty:1
+difficulty:2
 fancyGraphics:false
 ao:2
 renderClouds:false
 resourcePacks:["squeru tet"]
 incompatibleResourcePacks:[]
-lastServer:kamshirtr.feathermc.gg
+lastServer:mcpvp.pl
 lang:en_US
 chatVisibility:0
 chatColors:true
@@ -27,7 +27,7 @@ chatOpacity:1.0
 snooperEnabled:true
 fullscreen:false
 enableVsync:false
-useVbo:true
+useVbo:false
 hideServerAddress:false
 advancedItemTooltips:true
 pauseOnLostFocus:false
